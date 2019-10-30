@@ -14,12 +14,13 @@ require (
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a // indirect
 	github.com/goki/gi v0.9.8
 	github.com/goki/ki v0.9.8
+	github.com/hecate-tech/raylib-go v1.0.1
 	github.com/mattn/go-gtk v0.0.0-20190930150717-0423bc8d46fb // indirect
 	github.com/mattn/go-pointer v0.0.0-20190911064623-a0a44394634f // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/wailsapp/wails v0.18.5
 	golang.org/x/exp v0.0.0-20191029154019-8994fa331a53
-	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8
 	golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028
 	gorgonia.org/cu v0.9.1 // indirect
 )

@@ -7,7 +7,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	gl "github.com/fogleman/fauxgl"
-	"github.com/nfnt/resize"
 	"golang.org/x/image/colornames"
 )
 
@@ -43,32 +42,12 @@ func run() {
 		panic(err)
 	}
 
-	var (
-		img    image.Image
-		pdata  *pixel.PictureData
-		sprite *pixel.Sprite
-	)
+	// var (
+	// 	img   image.Image
+	// 	pdata *pixel.PictureData
+	// 	sprite *pixel.Sprite
+	// )
 
-	var count int
-	for !win.Closed() {
-		log.Printf("render[%d]\n", count)
-		count++
-		img = resize.Resize(width, height, renderImage(), resize.Bilinear)
-
-		pdata = pixel.PictureDataFromImage(img)
-		sprite = pixel.NewSprite(pdata, pdata.Bounds())
-
-		win.Clear(colornames.Slategrey)
-
-		sprite.Draw(win, pixel.IM.Moved(
-			win.Bounds().Center(),
-		))
-
-		win.Update()
-	}
-}
-
-func renderImage() image.Image {
 	// load the mesh
 	mesh, err := gl.LoadOBJ("capsule.obj")
 	if err != nil {
@@ -87,18 +66,73 @@ func renderImage() image.Image {
 	// create a rendering context
 	context := gl.NewContext(width*scale, height*scale)
 
+	go func() {
+		render(context, win, mesh, texture)
+	}()
+
+	var count int
+	for !win.Closed() {
+		log.Printf("render[%d]\n", count)
+		count++
+		// img = resize.Resize(width, height, renderImage(context, mesh, texture), resize.Bilinear)
+
+		// pdata = pixel.PictureDataFromImage(img)
+		// sprite = pixel.NewSprite(pdata, pdata.Bounds())
+
+		win.Clear(colornames.Slategrey)
+
+		// sprite.Draw(win, pixel.IM.Moved(
+		// 	win.Bounds().Center(),
+		// ))
+
+		win.Update()
+	}
+}
+
+func render(ctx *gl.Context, win *pixelgl.Window, obj *gl.Mesh, tex gl.Texture) {
+	for {
+		renderImage(ctx, win, obj, tex)
+	}
+}
+
+// func renderImage(context *gl.Context, obj *gl.Mesh, tex gl.Texture) image.Image {
+// 	// create transformation matrix and light direction
+// 	aspect := float64(width) / float64(height)
+// 	matrix := gl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+
+// 	// render
+// 	shader := gl.NewPhongShader(matrix, light, eye)
+// 	shader.Texture = tex
+// 	context.Shader = shader
+// 	context.DrawMesh(obj)
+
+// 	// downsample image for antialiasing
+// 	return context.Image()
+// 	// img := context.Image()
+// 	// img = resize.Resize(width, height, img, resize.Bilinear)
+// }
+func renderImage(context *gl.Context, win *pixelgl.Window, obj *gl.Mesh, tex gl.Texture) {
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
 	matrix := gl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 
 	// render
 	shader := gl.NewPhongShader(matrix, light, eye)
-	shader.Texture = texture
+	shader.Texture = tex
 	context.Shader = shader
-	context.DrawMesh(mesh)
+	context.DrawMesh(obj)
 
 	// downsample image for antialiasing
-	return context.Image()
+	img := pixel.PictureDataFromImage(context.Image())
+	sprite := pixel.NewSprite(img, img.Bounds())
+
+	win.Clear(colornames.Navy)
+
+	sprite.Draw(win, pixel.IM.Moved(
+		win.Bounds().Center(),
+	))
+
+	win.Update()
 	// img := context.Image()
 	// img = resize.Resize(width, height, img, resize.Bilinear)
 }

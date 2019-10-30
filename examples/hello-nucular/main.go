@@ -3,9 +3,10 @@ package main
 import (
 	"image"
 	"log"
+	"sync"
 
+	// "github.com/aarzilli/nucular"
 	"github.com/aarzilli/nucular"
-	"github.com/aarzilli/nucular/style"
 	gl "github.com/fogleman/fauxgl"
 	"github.com/nfnt/resize"
 )
@@ -30,51 +31,67 @@ var (
 )
 
 func main() {
-	wnd := nucular.NewMasterWindow(0, "Hello", updatefn)
-	wnd.SetStyle(style.FromTheme(style.DarkTheme, 2.0))
+	// wnd := nucular.NewMasterWindow(0, "Hello", updaefn)
+	wnd := nucular.NewMasterWindowSize(0, "Hello", image.Point{800, 600}, updatefn)
+
+	// wnd.SetStyle(style.FromTheme(style.DarkTheme, 2.0))
+	// wnd.Lock()
 
 	wnd.Main()
 }
 
+func render(w *nucular.Window) {
+	for {
+		// load the mesh
+		mesh, err := gl.LoadOBJ("capsule.obj")
+		if err != nil {
+			panic(err)
+		}
+
+		// load the texture
+		texture, err := gl.LoadTexture("capsule.jpg")
+		if err != nil {
+			panic(err)
+		}
+
+		// fit mesh in a bi-unit cube centered at the origin
+		mesh.BiUnitCube()
+
+		// create a rendering context
+		context := gl.NewContext(width*scale, height*scale)
+
+		// create transformation matrix and light direction
+		aspect := float64(width) / float64(height)
+		matrix := gl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+
+		// render
+		shader := gl.NewPhongShader(matrix, light, eye)
+		shader.Texture = texture
+		context.Shader = shader
+		context.DrawMesh(mesh)
+
+		// downsample image for antialiasing
+		img := context.Image()
+		img = resize.Resize(width, height, img, resize.Bilinear)
+
+		if rgba, ok := img.(*image.RGBA); ok {
+			w.Image(rgba)
+		} else {
+			log.Fatalf("failed to convert image to rgba")
+		}
+
+	}
+}
+
+var (
+	mrender = &sync.Once{}
+)
+
 func updatefn(w *nucular.Window) {
-	// w.Row(1024).Dynamic(1024)
-	w.RowScaled(1024).StaticScaled(1024)
+	// w.RowScaled(1024).StaticScaled(1024)
+	w.Row(1024).Static(1024)
 
-	// load the mesh
-	mesh, err := gl.LoadOBJ("capsule.obj")
-	if err != nil {
-		panic(err)
-	}
-
-	// load the texture
-	texture, err := gl.LoadTexture("capsule.jpg")
-	if err != nil {
-		panic(err)
-	}
-
-	// fit mesh in a bi-unit cube centered at the origin
-	mesh.BiUnitCube()
-
-	// create a rendering context
-	context := gl.NewContext(width*scale, height*scale)
-
-	// create transformation matrix and light direction
-	aspect := float64(width) / float64(height)
-	matrix := gl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
-
-	// render
-	shader := gl.NewPhongShader(matrix, light, eye)
-	shader.Texture = texture
-	context.Shader = shader
-	context.DrawMesh(mesh)
-
-	// downsample image for antialiasing
-	img := context.Image()
-	img = resize.Resize(width, height, img, resize.Bilinear)
-
-	if rgba, ok := img.(*image.RGBA); ok {
-		w.Image(rgba)
-	} else {
-		log.Fatalf("failed to convert image to rgba")
-	}
+	mrender.Do(func() {
+		go render(w)
+	})
 }

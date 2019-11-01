@@ -1,11 +1,10 @@
-#ifndef GAME_H
 #include "game.hpp"
-#endif  // GAME_H
 
 int main() {
 	InitWindow(800, 450, "Hello C++");
 
 	SetTargetFPS(60);
+	SetTraceLogExit(LOG_WARNING);
 
 	Game game;  // Automatically calls Game constructor.
 

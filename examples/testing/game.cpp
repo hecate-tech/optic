@@ -1,6 +1,4 @@
-#ifndef GAME_H
 #include "game.hpp"
-#endif  // GAME_H
 
 Game::Game() {
 	camera.position = (Vector3){3.0, 3.0, 3.0};
@@ -44,17 +42,3 @@ void Game::update3D(Camera3D* camera) {
 }
 
 void Game::update2D(Camera3D* camera) {}
-
-Player::Player() {
-	model = LoadModel(modelPath);
-	texture = LoadTexture(texturePath);
-
-	model.materials[0].maps[MAP_DIFFUSE].texture = texture;
-}
-
-void Player::Render() { DrawModel(model, position, scale, color); }
-
-void Player::Unload() {
-	UnloadModel(model);
-	UnloadTexture(texture);
-}

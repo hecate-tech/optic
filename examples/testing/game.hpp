@@ -1,46 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
-#ifndef RAYLIB_H
 #include <raylib.h>
-#endif  // RAYLIB_H
-
-#ifndef _LIBCPP_ERRNO_H
-#include <errno.h>
-#endif  // _LIBCPP_ERRNO_H
-
-#ifndef _LIBCPP_STRING_H
-#include <string.h>
-#endif  // _LIBCPP_STRING_H
-
-#ifndef _LIBCPP_STDIO_H
 #include <stdio.h>
-#endif  // _LIBCPP_STDIO_H
+#include <string.h>
 
-typedef enum RenderLayers {
-	LAYER_MENU = 0,
-	LAYER_PLAYER,
-	LAYER_BACKGROUND,
-};
-
-class Player {
-   private:
-	const char* texturePath = "dwarf_diffuse.png";
-	const char* modelPath = "dwarf.obj";
-
-   public:
-	Texture2D texture{};
-	Model model{};
-	Vector3 position{0, 0, 0};
-	Color color = WHITE;
-	float scale = 2.0;
-	int renderLayer = LAYER_PLAYER;
-
-	void Render();
-	void Unload();
-
-	Player();
-};
+#include "common.h"
+#include "player.hpp"
+#include "unsafe.hpp"
 
 class Game {
    private:
@@ -53,6 +20,7 @@ class Game {
 
    public:
 	Camera3D* GetCamera() { return &camera; };
+	Player* GetPlayer() { return &player; };
 
 	void Update();
 	void Unload();

@@ -1,64 +1,60 @@
 #ifndef GAME_H
-    #include "game.hpp"
-#endif // GAME_H
+#include "game.hpp"
+#endif  // GAME_H
 
 Game::Game() {
-    camera.position = (Vector3){3.0, 3.0, 3.0};
-    camera.target = (Vector3){0.0, 1.5, 0.0};
-    camera.up = (Vector3){0.0, 1.0, 0.0};
-    camera.fovy = 45.0;
-    
-    SetCameraMode(camera, CAMERA_ORBITAL);
+	camera.position = (Vector3){3.0, 3.0, 3.0};
+	camera.target = (Vector3){0.0, 1.5, 0.0};
+	camera.up = (Vector3){0.0, 1.0, 0.0};
+	camera.fovy = 45.0;
 
-    player = Player();
+	SetCameraMode(camera, CAMERA_ORBITAL);
+
+	player = Player();
 }
 
 void Game::Unload() {
-    player.Unload();
+	player.Unload();
 
-    CloseWindow();
+	CloseWindow();
 }
 
 void Game::Update() {
-    Camera3D* camera = Game::GetCamera();
+	Camera3D* camera = Game::GetCamera();
 
-    UpdateCamera(camera);
+	UpdateCamera(camera);
 
-    BeginDrawing();
-    ClearBackground(Game::backgroundColor);
+	BeginDrawing();
+	ClearBackground(Game::backgroundColor);
 
-    Game::update3D(camera);
+	Game::update3D(camera);
 
-    EndDrawing();
+	EndDrawing();
 }
 
 void Game::update3D(Camera3D* camera) {
-    BeginMode3D(*camera);
+	BeginMode3D(*camera);
 
-    player.Render();
+	player.Render();
 
-    DrawGrid(10, 1.0);
-    DrawGizmo(player.position);
+	DrawGrid(10, 1.0);
+	DrawGizmo(player.position);
 
-    EndMode3D();
+	EndMode3D();
 }
 
-void Game::update2D(Camera3D* camera) {
-
-}
+void Game::update2D(Camera3D* camera) {}
 
 Player::Player() {
-    model = LoadModel(modelPath);    
-    texture = LoadTexture(texturePath);
+	model = LoadModel(modelPath);
+	texture = LoadTexture(texturePath);
 
-    model.materials[0].maps[MAP_DIFFUSE].texture = texture;
+	model.materials[0].maps[MAP_DIFFUSE].texture = texture;
 }
 
-void Player::Render() {
-    DrawModel(model, position, scale, color);
-}
+void Player::Render() { DrawModel(model, position, scale, color); }
 
 void Player::Unload() {
-    UnloadModel(model);
-    UnloadTexture(texture);
+	UnloadModel(model);
+	UnloadTexture(texture);
 }

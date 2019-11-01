@@ -5,18 +5,16 @@ int main(void) {
 
     SetTargetFPS(60);
 
-    struct Game game; // Zero value Game struct.
-
     // Initialize everything in the game.
-    InitGame(&game);
+    InitGame();
 
     while (!WindowShouldClose()) {
         // Update the game using a helper function.
-        UpdateGame(&game);
+        UpdateGame();
     }
 
     // Unload the game.
-    UnloadGame(&game);
+    UnloadGame();
 
     return 0;
 }
